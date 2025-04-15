@@ -4,17 +4,39 @@ using Ambev.DeveloperEvaluation.Domain.Validation;
 
 namespace Ambev.DeveloperEvaluation.Domain.Entities
 {
+    /// <summary>
+    /// Represents a product with name, description, price, status, and timestamps.
+    /// </summary>
     public class Product: BaseEntity
     {
+        /// <summary>
+        /// The name of the product.
+        /// </summary>
         public string Name { get; set; } = string.Empty;
 
+        /// <summary>
+        /// The description of the product.
+        /// </summary>
         public string? Description { get; set; } = string.Empty;
 
+        /// <summary>
+        /// The price of the product.
+        /// </summary>
         public decimal Price { get; set; }
 
+        /// <summary>
+        /// Indicates whether the product is active.
+        /// </summary>
         public bool IsActive { get; set; }
 
+        /// <summary>
+        /// The date and time when the product was created.
+        /// </summary>
         public DateTime CreatedAt { get; set; }
+
+        /// <summary>
+        /// The date and time when the product was last updated.
+        /// </summary>
         public DateTime? UpdatedAt { get; set; }
 
         /// <summary>
@@ -27,7 +49,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
         }
 
         /// <summary>
-        /// inactive a product.
+        /// Inactive a product.
         /// </summary>
         public void DeactivateProduct()
         {
@@ -35,6 +57,12 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
+        /// <summary>
+        /// Validates the current product instance using <see cref="ProductValidator"/>.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="ValidationResultDetail"/> containing the validation result and any errors.
+        /// </returns>
         public ValidationResultDetail Validate()
         {
             var validator = new ProductValidator();

@@ -4,7 +4,10 @@ using Ambev.DeveloperEvaluation.Domain.Common;
 
 namespace Ambev.DeveloperEvaluation.Domain.Entities
 {
-    public class Sale: BaseEntity
+    /// <summary>
+    /// Represents a sale transaction, containing details such as date, branch, items sold, and total amount.
+    /// </summary>
+    public class Sale : BaseEntity
     {
         /// <summary>
         /// Gets or sets unique sale number.
@@ -26,7 +29,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
         /// </summary>
         [ForeignKey(nameof(Branch))]
         public required Guid BranchId { get; set; }
-        
+
         /// <summary>
         /// Indicates whether the sale has been cancelled.
         /// </summary>
@@ -48,7 +51,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
         /// Gets or sets the date and time when the sale record was last updated.
         /// </summary>
         public DateTime? UpdatedAt { get; set; }
-        
+
         /// <summary>
         /// Collection of items related to this sale.
         /// </summary>
