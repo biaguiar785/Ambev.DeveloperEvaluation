@@ -1,13 +1,18 @@
-﻿using Ambev.DeveloperEvaluation.Application.Commom;
-using Ambev.DeveloperEvaluation.Domain.Entities;
+﻿using Ambev.DeveloperEvaluation.Application.Products.GetProduct;
 using MediatR;
 
 namespace Ambev.DeveloperEvaluation.Application.Products.ListProducts
 {
-    public class ListProductsCommand: IRequest<PaginatedResult<Product>>
+    public class ListProductsCommand: IRequest<List<GetProductResult>>
     {
-        public int Page { get; set; } = 1;
+        public int PageNumber { get; set; } = 1;
         public int Size { get; set; } = 10;
-        public string? Order { get; set; }
+
+        public ListProductsCommand(int pageNumber, int pageSize)
+        {
+            PageNumber = pageNumber;
+            Size = pageSize;
+        }
+
     }
 }

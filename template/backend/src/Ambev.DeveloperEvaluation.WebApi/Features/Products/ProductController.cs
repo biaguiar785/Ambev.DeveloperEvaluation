@@ -70,30 +70,26 @@ namespace Ambev.DeveloperEvaluation.WebApi.Features.Products
         }
 
         [HttpGet("products")]
-        [ProducesResponseType(typeof(ApiResponseWithData<IEnumerable<GetProductResponse>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponseWithData<PaginatedList<GetProductResponse>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetProducts(
-        [FromQuery(Name = "_page")] int? page = null,
-        [FromQuery(Name = "_size")] int? size = null,
-        [FromQuery(Name = "_order")] string? order = null,
-        CancellationToken cancellationToken = default)
+            [FromQuery(Name = "_page")] int? page = null,
+            [FromQuery(Name = "_size")] int? size = null,
+            [FromQuery(Name = "_order")] string? order = null,
+            CancellationToken cancellationToken = default)
         {
-            var command = new ListProductsCommand
-            {
-                Page = page ?? 1,
-                Size = size ?? 10,
-                Order = order
-            };
+            var command = new ListProductsCommand(page ?? 1, size ?? 10);
 
             var response = await _mediator.Send(command, cancellationToken);
-            var products = _mapper.Map<IEnumerable<GetProductResponse>>(response);
+            var products = _mapper.Map<List<GetProductResponse>>(response);
+
             var paginated = new PaginatedList<GetProductResponse>(
                 products.ToList(),
-                response.TotalCount,
-                response.CurrentPage,
-                response.PageSize);
+                response.Count,
+                command.PageNumber,
+                command.Size
+            );
 
             return OkPaginated(paginated);
-
         }
 
         [HttpGet("categories")]

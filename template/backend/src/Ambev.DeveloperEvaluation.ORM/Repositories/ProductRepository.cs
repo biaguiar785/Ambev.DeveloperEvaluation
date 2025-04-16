@@ -55,19 +55,13 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories
         /// <param name="pageSize"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<(List<Product>, int totalCount)> GetAllPaginatedAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+        public async Task<List<Product>> GetAllPaginatedAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
         {
-            var query = _context.Products.AsQueryable();
-
-            var totalCount = await query.CountAsync(cancellationToken);
-
-            var products = await query
-                .OrderBy(x => x.Name)
+          return await _context.Products                
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync(cancellationToken);
-
-            return (products, totalCount);
+           
         }
 
         /// <summary>

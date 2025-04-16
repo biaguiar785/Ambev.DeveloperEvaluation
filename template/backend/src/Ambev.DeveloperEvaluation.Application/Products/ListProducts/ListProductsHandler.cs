@@ -1,29 +1,27 @@
-﻿using Ambev.DeveloperEvaluation.Application.Commom;
-using Ambev.DeveloperEvaluation.Domain.Entities;
+﻿using Ambev.DeveloperEvaluation.Application.Products.GetProduct;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
+using AutoMapper;
 using MediatR;
 
 namespace Ambev.DeveloperEvaluation.Application.Products.ListProducts
 {
-    public class ListProductsHandler : IRequestHandler<ListProductsCommand, PaginatedResult<Product>>
+    public class ListProductsHandler : IRequestHandler<ListProductsCommand, List<GetProductResult>>
     {
         private readonly IProductRepository _repository;
-        private readonly IMediator _mediator;
-        public ListProductsHandler(IProductRepository repository, IMediator mediator)
+        private readonly IMapper _mapper;
+        public ListProductsHandler(IProductRepository repository, IMapper mapper)
         {
             _repository = repository;
-            _mediator = mediator;
+            _mapper = mapper;
         }
 
-        public async Task<PaginatedResult<Product>> Handle(ListProductsCommand request, CancellationToken cancellationToken)
+        public async Task<List<GetProductResult>> Handle(ListProductsCommand request, CancellationToken cancellationToken)
         {
-            var (products, totalCount) = await _repository.GetAllPaginatedAsync(request.Page, request.Size, cancellationToken);
+            var products = await _repository.GetAllPaginatedAsync(request.PageNumber, request.Size, cancellationToken);
 
-            return new PaginatedResult<Product>(
-            products,
-            totalCount,
-            request.Page,
-            request.Size);
+            var results = products.Select(x => _mapper.Map<GetProductResult>(x)).ToList();
+
+            return results;
 
         }
 

@@ -28,6 +28,15 @@ public class Program
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddHttpContextAccessor();
 
+            builder.Services.AddCors(option =>
+            {
+            option.AddPolicy("AllowFrontend",
+                policy => policy.WithOrigins("http://localhost:4200")
+                .AllowAnyHeader()
+                .AllowAnyMethod());
+            });
+
+
             builder.AddBasicHealthChecks();
             builder.Services.AddSwaggerGen(options =>
             {
@@ -58,6 +67,7 @@ public class Program
             builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
            
             var app = builder.Build();
+            
             using (var scope = app.Services.CreateScope()) {
 
                 var services = scope.ServiceProvider;
@@ -72,8 +82,10 @@ public class Program
                     Console.WriteLine("No pending migrations");
                 }
             }
-               
-                app.UseMiddleware<ValidationExceptionMiddleware>();
+            
+            app.UseCors("AllowFrontend");
+
+            app.UseMiddleware<ValidationExceptionMiddleware>();
 
             if (app.Environment.IsDevelopment())
             {

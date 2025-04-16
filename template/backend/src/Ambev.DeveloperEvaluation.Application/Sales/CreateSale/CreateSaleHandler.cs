@@ -34,7 +34,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale
 
         public async Task<CreateSaleResult> Handle(CreateSaleCommand request, CancellationToken cancellationToken)
         {
-            var userId = _httpFactory.HttpContext!.User.FindFirst(ClaimTypes.NameIdentifier)!.Value!;
+            //var userId = _httpFactory.HttpContext!.User.FindFirst(ClaimTypes.NameIdentifier)!.Value!;
 
             //command validator
             var validator = new CreateSaleCommandValidator();
@@ -54,7 +54,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale
                 BranchId = branch.Id,
                 SaleDate = DateTime.UtcNow,
                 Cancelled = false,
-                UserId = new Guid(userId),
+                UserId = Guid.NewGuid(),
                 Items = [],
                 CreatedAt = DateTime.UtcNow,
             };
@@ -95,7 +95,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale
             var eventSale = new SaleCreatedEvent(
                 saleResult.Id,
                 saleResult.BranchId,
-                new Guid(userId),
+                Guid.NewGuid(),
                 saleResult.Items.ConvertAll(x => new SaleItemCreatedEvent(
                     x.ProductId,
                     x.Quantity,

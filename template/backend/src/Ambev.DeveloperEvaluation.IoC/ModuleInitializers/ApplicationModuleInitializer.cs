@@ -15,19 +15,37 @@ public class ApplicationModuleInitializer : IModuleInitializer
     public void Initialize(WebApplicationBuilder builder)
     {
         builder.Services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
-
-        builder.Services.AddMassTransit(x =>
+        try
         {
+
             builder.Services.AddMassTransit(x =>
             {
                 x.UsingRabbitMq((context, config) =>
-                {
-                    config.Host(builder.Configuration.GetConnectionString("RabbitMQ"));
-                    config.ReceiveEndpoint(nameof(SaleCreatedEvent), endpoint => { endpoint.Bind(nameof(CreateSaleCommand)); });
-                    config.ReceiveEndpoint(nameof(SaleDeletedEvent), endpoint => { endpoint.Bind(nameof(DeleteSaleCommand)); });
-                    config.ReceiveEndpoint(nameof(SaleCancelledEvent), endpoint => { endpoint.Bind(nameof(CancelSaleCommand)); });
-                });
+                  {
+                      config.Host(builder.Configuration.GetConnectionString("RabbitMQ"));
+                  
+                      config.ReceiveEndpoint(nameof(SaleCreatedEvent), endpoint =>
+                      {
+                          endpoint.Bind<CreateSaleCommand>();
+                      });
+                  
+                      config.ReceiveEndpoint(nameof(SaleDeletedEvent), endpoint =>
+                      {
+                          endpoint.Bind<DeleteSaleCommand>();
+                      });
+
+                      config.ReceiveEndpoint(nameof(SaleCancelledEvent), endpoint =>
+                      {
+                          endpoint.Bind<CancelSaleCommand>();
+                      });
+                  });
+
             });
-        });
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine($"MassTransit config error: {ex.Message}");
+            throw;
+        }
     }
 }
