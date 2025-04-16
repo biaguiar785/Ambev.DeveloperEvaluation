@@ -38,9 +38,33 @@ public class Program
 
 
             builder.AddBasicHealthChecks();
-            builder.Services.AddSwaggerGen(options =>
+            builder.Services.AddSwaggerGen(c =>
             {
-                options.SwaggerDoc("v1", new OpenApiInfo { Title = "Sale API", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Sale API", Version = "v1" });
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Insira o token JWT como: Bearear {token}",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[]{ }
+                    }
+                });
             });
 
             builder.Services.AddDbContext<DefaultContext>(options =>
