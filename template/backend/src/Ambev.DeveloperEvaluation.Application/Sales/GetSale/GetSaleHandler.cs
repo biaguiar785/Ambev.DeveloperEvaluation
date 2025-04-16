@@ -32,8 +32,6 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.GetSale
 
             var result = _mapper.Map<GetSaleResult>(sale);
 
-            //Todo: publicar evento
-
             return result;
         }
     }

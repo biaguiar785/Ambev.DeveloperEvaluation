@@ -1,32 +1,35 @@
 ﻿using System.Security.Claims;
 using Ambev.DeveloperEvaluation.Domain.Entities;
+using Ambev.DeveloperEvaluation.Domain.Events.Sales;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
 using FluentValidation;
+using MassTransit;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale
 {
-    public class CreateSaleHandler: IRequestHandler<CreateSaleCommand, CreateSaleResult>
+    public class CreateSaleHandler : IRequestHandler<CreateSaleCommand, CreateSaleResult>
     {
         private readonly IHttpContextAccessor _httpFactory;
         private readonly ISaleRepository _saleRepository;
         private readonly IBranchRepository _branchRepository;
         private readonly IProductRepository _productRepository;
-        private readonly IMediator _mediator;
+        private readonly IBus _bus;
 
         public CreateSaleHandler(
-            IHttpContextAccessor httpFactory, 
-            ISaleRepository saleRepository, 
-            IBranchRepository branchRepository, 
-            IProductRepository productRepository, 
-            IMediator mediator)
+            IHttpContextAccessor httpFactory,
+            ISaleRepository saleRepository,
+            IBranchRepository branchRepository,
+            IProductRepository productRepository,
+            IBus bus
+            )
         {
             _httpFactory = httpFactory;
             _saleRepository = saleRepository;
             _branchRepository = branchRepository;
             _productRepository = productRepository;
-            _mediator = mediator;
+            _bus = bus;
         }
 
         public async Task<CreateSaleResult> Handle(CreateSaleCommand request, CancellationToken cancellationToken)
@@ -60,7 +63,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale
 
             var saleItems = new List<SaleItem>();
 
-            foreach(var item in request.Items)
+            foreach (var item in request.Items)
             {
                 var product = await _productRepository.GetByIdAsync(item.ProductId, cancellationToken);
                 if (product == null)
@@ -69,7 +72,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale
                 decimal disccount = 0m;
                 if (item.Quantity >= 4 && item.Quantity < 10)
                     disccount = 0.10m;
-                else if(item.Quantity>=10 && item.Quantity < 20)
+                else if (item.Quantity >= 10 && item.Quantity < 20)
                     disccount = 0.20m;
 
                 var saleItemTotal = product.Price * item.Quantity;
@@ -89,12 +92,22 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale
             }
 
             var saleResult = await _saleRepository.CreateAsync(sale, cancellationToken);
+            var eventSale = new SaleCreatedEvent(
+                saleResult.Id,
+                saleResult.BranchId,
+                new Guid(userId),
+                saleResult.Items.ConvertAll(x => new SaleItemCreatedEvent(
+                    x.ProductId,
+                    x.Quantity,
+                    x.Discount,
+                    x.TotalItemPrice
+                ))
+            );
+            await _bus.Publish(eventSale,cancellationToken);
 
-            //Todo: adicionar publicacao de evento
-
-            return new CreateSaleResult { Id = saleResult.Id, Total= saleResult.TotalSale };
+            return new CreateSaleResult { Id = saleResult.Id, Total = saleResult.TotalSale };
 
         }
     }
-    
+
 }

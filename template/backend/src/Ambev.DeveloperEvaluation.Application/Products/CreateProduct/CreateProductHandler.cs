@@ -31,7 +31,6 @@ namespace Ambev.DeveloperEvaluation.Application.Products.CreateProduct
             var product = _mapper.Map<Product>(request);
             var createdProduct = await _productRepository.CreateAsync(product, cancellationToken);
 
-            //TODO: Publicar evento
             var result = _mapper.Map<CreateProductResult>(createdProduct);
             return result;
         }

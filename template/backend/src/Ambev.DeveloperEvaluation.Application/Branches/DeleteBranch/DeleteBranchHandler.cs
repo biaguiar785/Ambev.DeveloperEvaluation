@@ -27,7 +27,6 @@ namespace Ambev.DeveloperEvaluation.Application.Branches.DeleteBranch
             if (!branchDeleted)
                 throw new KeyNotFoundException($"Branch with id {request.Id} not found.");
             
-            //TODO: publicar evento
 
             return new DeleteBranchResult { Success = true };
         }

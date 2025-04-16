@@ -33,8 +33,6 @@ namespace Ambev.DeveloperEvaluation.Application.Branches.GetBranch
 
             var result = _mapper.Map<GetBranchResult>(branch);
 
-            //TODO: publicar evento
-
             return result;
         }
     }

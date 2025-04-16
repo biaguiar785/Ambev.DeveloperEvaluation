@@ -56,9 +56,24 @@ public class Program
             });
 
             builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-
+           
             var app = builder.Build();
-            app.UseMiddleware<ValidationExceptionMiddleware>();
+            using (var scope = app.Services.CreateScope()) {
+
+                var services = scope.ServiceProvider;
+
+                var context = services.GetRequiredService<DefaultContext>();
+                if (context.Database.GetPendingMigrations().Any())
+                {
+                    Console.WriteLine("Apllying pending migrations");
+                    context.Database.Migrate();
+                }else
+                {
+                    Console.WriteLine("No pending migrations");
+                }
+            }
+               
+                app.UseMiddleware<ValidationExceptionMiddleware>();
 
             if (app.Environment.IsDevelopment())
             {

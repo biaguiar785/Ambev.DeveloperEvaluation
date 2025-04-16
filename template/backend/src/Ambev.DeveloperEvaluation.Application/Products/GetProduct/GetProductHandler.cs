@@ -34,8 +34,6 @@ namespace Ambev.DeveloperEvaluation.Application.Products.GetProduct
 
             var result = _mapper.Map<GetProductResult>(product);
 
-            //TODO: Publicar evento
-
             return result;
 
         }

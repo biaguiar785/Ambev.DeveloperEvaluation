@@ -31,8 +31,6 @@ namespace Ambev.DeveloperEvaluation.Application.Branches.CreateBranch
             var createdBranch = await _branchRepository.CreateAsync(branch, cancellationToken);
             var result = _mapper.Map<CreateBranchResult>(createdBranch);
 
-            //TODO: publicar evento 
-
             return result;
         }
     }
