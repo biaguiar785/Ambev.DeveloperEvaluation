@@ -55,5 +55,23 @@ namespace Ambev.DeveloperEvaluation.Domain.Repositories
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         Task<(List<Product>, int totalCount)> GetAllPaginatedAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default);
+       
+        /// <summary>
+        /// Retrieves a list of all product categories.
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<List<string>> GetCategoriesAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Retrieves a paginated list of products by category.
+        /// </summary>
+        /// <param name="category"></param>
+        /// <param name="page"></param>
+        /// <param name="size"></param>
+        /// <param name="order"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<(List<Product>, int totalCount)> GetByCategoryPaginatedAsync(string category, int page, int size, string? order, CancellationToken cancellationToken);
     }
 }

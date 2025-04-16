@@ -20,6 +20,10 @@ namespace Ambev.DeveloperEvaluation.ORM.Mapping
                 .HasMaxLength(100)
                 .IsRequired();
 
+            builder.Property(p => p.Category)
+                .IsRequired()
+                .HasMaxLength(50);
+
             builder.Property(p => p.Description)
                 .HasMaxLength(500);
 
@@ -35,6 +39,16 @@ namespace Ambev.DeveloperEvaluation.ORM.Mapping
                 .IsRequired();
 
             builder.Property(p => p.UpdatedAt);
+
+            builder.OwnsOne(p => p.Rating, rating =>
+            {
+                rating.Property(r => r.Rate)
+                    .HasColumnName("Rate")
+                    .HasColumnType("decimal(3,2)");
+
+                rating.Property(r => r.Count)
+                    .HasColumnName("Count");
+            });
         }
     }
 }

@@ -20,6 +20,11 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
         public string? Description { get; set; } = string.Empty;
 
         /// <summary>
+        /// The category of the product.
+        /// </summary>
+        public string Category { get; set; } = string.Empty;
+
+        /// <summary>
         /// The price of the product.
         /// </summary>
         public decimal Price { get; set; }
@@ -28,6 +33,8 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
         /// Indicates whether the product is active.
         /// </summary>
         public bool IsActive { get; set; }
+
+        public ProductRating Rating { get; set; } = new ProductRating();
 
         /// <summary>
         /// The date and time when the product was created.
@@ -72,6 +79,19 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
                 IsValid = result.IsValid,
                 Errors = result.Errors.Select(e => (ValidationErrorDetail)e)
             };
+        }
+
+        public class ProductRating
+        {
+            /// <summary>
+            /// Rate of the product.
+            /// </summary>
+            public double Rate { get; set; }
+
+            /// <summary>
+            /// Number of ratings.
+            /// </summary>
+            public int Count { get; set; }
         }
 
     }

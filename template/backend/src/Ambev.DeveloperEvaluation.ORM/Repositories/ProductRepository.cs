@@ -7,7 +7,7 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories
     /// <summary>
     /// Repository class for handling operations related to the Product entity in the data layer.
     /// </summary>
-    public class ProductRepository: IProductRepository
+    public class ProductRepository : IProductRepository
     {
         private readonly DefaultContext _context;
         /// <summary>
@@ -71,6 +71,32 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories
         }
 
         /// <summary>
+        /// Retrieves a paginated list of products by category with total count.
+        /// </summary>
+        /// <param name="category"></param>
+        /// <param name="page"></param>
+        /// <param name="size"></param>
+        /// <param name="order"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<(List<Product>, int totalCount)> GetByCategoryPaginatedAsync(string category, int page, int size, string? order, CancellationToken cancellationToken)
+        {
+            var query = _context.Products.AsQueryable();
+
+            var totalCount = await query.CountAsync();
+
+            var products = await query
+                .Where(x => x.Category == category)
+                .OrderBy(x => x.Name)
+                .Skip((page - 1) * size)
+                .Take(size)
+                .ToListAsync(cancellationToken);
+
+            return(products, totalCount);
+        }
+
+        /// <summary>
         /// Retrieves a product by its unique identifier.
         /// </summary>
         /// <param name="id"></param>
@@ -90,6 +116,21 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories
         public async Task<Product?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
         {
             return await _context.Products.FirstOrDefaultAsync(x => x.Name == name, cancellationToken);
+        }
+
+        /// <summary>
+        /// Retrieves a list of product categories.
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<List<string>> GetCategoriesAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.Products
+               .Select(p => p.Category)
+               .Distinct()
+               .OrderBy(c => c)
+               .ToListAsync(cancellationToken);
         }
 
         /// <summary>
