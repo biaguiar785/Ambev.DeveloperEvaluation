@@ -2,6 +2,7 @@
 using Ambev.DeveloperEvaluation.Application.Sales.CreateSale;
 using Ambev.DeveloperEvaluation.Application.Sales.DeleteSale;
 using Ambev.DeveloperEvaluation.Common.Security;
+using Ambev.DeveloperEvaluation.Domain.Events.Sales;
 using MassTransit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -21,12 +22,10 @@ public class ApplicationModuleInitializer : IModuleInitializer
             {
                 x.UsingRabbitMq((context, config) =>
                 {
-
                     config.Host(builder.Configuration.GetConnectionString("RabbitMQ"));
-                    config.ReceiveEndpoint(nameof(SaleCreated), endpoint => { endpoint.Bind(nameof(CreateSaleCommand)); });
-                    config.ReceiveEndpoint(nameof(SaleDeleted), endpoint => { endpoint.Bind(nameof(DeleteSaleCommand)); });
-                    config.ReceiveEndpoint(nameof(SaleCancelled), endpoint => { endpoint.Bind(nameof(CancelSaleCommand)); });
-                    });
+                    config.ReceiveEndpoint(nameof(SaleCreatedEvent), endpoint => { endpoint.Bind(nameof(CreateSaleCommand)); });
+                    config.ReceiveEndpoint(nameof(SaleDeletedEvent), endpoint => { endpoint.Bind(nameof(DeleteSaleCommand)); });
+                    config.ReceiveEndpoint(nameof(SaleCancelledEvent), endpoint => { endpoint.Bind(nameof(CancelSaleCommand)); });
                 });
             });
         });

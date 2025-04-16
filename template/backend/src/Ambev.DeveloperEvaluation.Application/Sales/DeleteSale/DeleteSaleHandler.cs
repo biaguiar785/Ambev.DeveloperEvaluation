@@ -11,7 +11,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.DeleteSale
         private readonly ISaleRepository _saleRepository;
         private readonly IBus _bus;
 
-        public DeleteSaleHandler(ISaleRepository saleRepository, IMediator mediator)
+        public DeleteSaleHandler(ISaleRepository saleRepository, IBus bus)
         {
             _saleRepository = saleRepository;
             _bus = bus;
