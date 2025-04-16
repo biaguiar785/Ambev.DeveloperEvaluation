@@ -95,7 +95,7 @@ namespace Ambev.DeveloperEvaluation.WebApi.Features.Sales
         [HttpDelete("{id}/cancelSale")]
         [ProducesResponseType(typeof(bool), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        public async Task<IActionResult> CancelSale([FromBody] Guid id, CancellationToken cancellationToken)
+        public async Task<IActionResult> CancelSale([FromRoute] Guid id, CancellationToken cancellationToken)
         {
             var request = new CancelSaleRequest { Id = id };
             var validator = new CancelSaleRequestValidator();
