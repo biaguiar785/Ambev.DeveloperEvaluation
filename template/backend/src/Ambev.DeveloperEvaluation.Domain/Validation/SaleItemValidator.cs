@@ -14,7 +14,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Validation
             RuleFor(x => x.Quantity)
                 .GreaterThan(0)
                 .WithMessage("Quantity must be greater than 0.")
-                .LessThanOrEqualTo(20).WithMessage("Quantity must be less than or equal to 20.");]
+                .LessThanOrEqualTo(20).WithMessage("Quantity must be less than or equal to 20.");
 
             RuleFor(x => x.Price)
                 .GreaterThan(0)
