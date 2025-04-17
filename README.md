@@ -1,86 +1,188 @@
-# Developer Evaluation Project
+# Ambev Developer Evaluation
 
-`READ CAREFULLY`
+Este repositório contém a solução desenvolvida para o teste do time **DeveloperStore**, cobrindo os domínios de **Produto**, **Item de Venda** e **Venda**. A implementação inclui operações completas de CRUD, validações de negócio específicas e aplicação automática de descontos conforme o volume de itens.
 
-## Instructions
-**The test below will have up to 7 calendar days to be delivered from the date of receipt of this manual.**
+---
 
-- The code must be versioned in a public Github repository and a link must be sent for evaluation once completed
-- Upload this template to your repository and start working from it
-- Read the instructions carefully and make sure all requirements are being addressed
-- The repository must provide instructions on how to configure, execute and test the project
-- Documentation and overall organization will also be taken into consideration
+## 🗂️ Estrutura do Projeto
 
-## Use Case
-**You are a developer on the DeveloperStore team. Now we need to implement the API prototypes.**
+```
+Ambev.DeveloperEvaluation/
+├── Adapters
+│   ├── Driven
+│   │   ├── Ambev.DeveloperEvaluation.ORM
+│   │   │   ├── Mapping/        # Configurações de mapeamento do Entity Framework Core
+│   │   │   ├── Migrations/     # Scripts de migração do banco de dados
+│   │   │   ├── Repositories/   # Implementações de repositórios de dados
+│   │   │   ├── appsettings.json
+│   │   │   └── DefaultContext.cs
+│   ├── Drivers
+│   │   └── Ambev.DeveloperEvaluation.WebApi
+│   │       ├── Common/        # Utilitários gerais da API
+│   │       ├── Features/      # Endpoints organizados por funcionalidade
+│   │       │   ├── Auth
+│   │       │   ├── Branchs
+│   │       │   ├── Products
+│   │       │   ├── SaleItems
+│   │       │   ├── Sales
+│   │       │   └── Users
+│   │       ├── Logs/          # Implementação de logging
+│   │       ├── Mappings/      # Perfis do AutoMapper
+│   │       ├── Middleware/    # Filtros e tratamento de exceções
+│   │       ├── appsettings.json
+│   │       ├── Dockerfile
+│   │       └── Program.cs     # Ponto de entrada da aplicação
+├── Core
+│   ├── Application             # Casos de uso e orquestração
+│   ├── Domain
+│   │   ├── Common             # Entidades e classes auxiliares
+│   │   ├── Entities           # Modelos de domínio
+│   │   ├── Enums              # Enumerações
+│   │   ├── Events             # Eventos de domínio
+│   │   ├── Exceptions         # Exceções customizadas
+│   │   ├── Repositories       # Interfaces para persistência
+│   │   ├── Services           # Lógica de negócio
+│   │   ├── Specifications     # Regras de validação
+│   │   └── Validation         # Classes de validação
+├── Crosscutting               # Serviços transversais (HealthChecks, Logging, Security, Validation, IoC)
+├── Testes
+│   ├── Functional             # Testes ponta a ponta
+│   ├── Integration            # Testes de integração com banco e serviços
+│   └── Unit                   # Testes unitários de componentes isolados
+└── README.md                  # Documentação principal
+```
 
-As we work with `DDD`, to reference entities from other domains, we use the `External Identities` pattern with denormalization of entity descriptions.
+---
 
-Therefore, you will write an API (complete CRUD) that handles sales records. The API needs to be able to inform:
+## 🔐 Cadastro e Autenticação de Usuários
 
-* Sale number
-* Date when the sale was made
-* Customer
-* Total sale amount
-* Branch where the sale was made
-* Products
-* Quantities
-* Unit prices
-* Discounts
-* Total amount for each item
-* Cancelled/Not Cancelled
+A autenticação utiliza **JWT** para proteger os endpoints. O fluxo básico envolve:
 
-It's not mandatory, but it would be a differential to build code for publishing events of:
-* SaleCreated
-* SaleModified
-* SaleCancelled
-* ItemCancelled
+1. **Registrar Usuário**
+   - **POST** `/api/users/register`
+   - Exemplo de corpo:
+     ```json
+     {
+       "username": "Alex Peter",
+       "password": "@Ap987654321T",
+       "phone": "73981294386",
+       "email": "alex@gmail.com",
+       "status": 1,
+       "role": 2
+     }
+     ```
+   - Retorno inclui `id` do usuário criado.
 
-If you write the code, **it's not required** to actually publish to any Message Broker. You can log a message in the application log or however you find most convenient.
+2. **Login**
+   - **POST** `/api/auth/login`
+   - Exemplo de corpo:
+     ```json
+     {
+       "email": "alex@gmail.com",
+       "password": "@Ap987654321T
+     }
+     ```
+   - Retorna o **token JWT**, além de dados básicos (`email`, `name`, `role`).
 
-### Business Rules
+3. **Acesso a rotas seguras**
+   - Adicione no cabeçalho:
+     ```bash
+     Authorization: Bearer <seu_token>
+     ```
 
-* Purchases above 4 identical items have a 10% discount
-* Purchases between 10 and 20 identical items have a 20% discount
-* It's not possible to sell above 20 identical items
-* Purchases below 4 items cannot have a discount
+---
 
-These business rules define quantity-based discounting tiers and limitations:
+## 🗄️ Configuração do Banco de Dados
 
-1. Discount Tiers:
-   - 4+ items: 10% discount
-   - 10-20 items: 20% discount
+Para provisionar o esquema usando o **Entity Framework Core**:
 
-2. Restrictions:
-   - Maximum limit: 20 items per product
-   - No discounts allowed for quantities below 4 items
+```bash
+cd Adapters/Driven/Ambev.DeveloperEvaluation.ORM
+# Criar a migração inicial
+dotnet ef migrations add InitialMigration
+# Aplicar ao banco de dados
+dotnet ef database update
+```
 
-## Overview
-This section provides a high-level overview of the project and the various skills and competencies it aims to assess for developer candidates. 
+Os detalhes de conexão estão em `appsettings.json` dessa pasta.
 
-See [Overview](/.doc/overview.md)
+---
 
-## Tech Stack
-This section lists the key technologies used in the project, including the backend, testing, frontend, and database components. 
+## 📋 Regras de Negócio Principais
 
-See [Tech Stack](/.doc/tech-stack.md)
+- **Branch** (Filial)
+  - Identificador único e nome obrigatório.
+  - Pode gerenciar múltiplos produtos.
 
-## Frameworks
-This section outlines the frameworks and libraries that are leveraged in the project to enhance development productivity and maintainability. 
+- **Product**
+  - ID, nome e preço unitário.
+  - Operações de cadastro, atualização e remoção.
 
-See [Frameworks](/.doc/frameworks.md)
+- **SaleItem**
+  - Associado a uma venda (`SaleId`) e a um produto (`ProductId`).
+  - Define preço unitário e quantidade.
+  - Descontos automáticos:
+    - Acima de 10 unidades → 20% de desconto
+    - Entre 4 e 9 unidades → 10% de desconto
+    - Máximo permitido: 20 unidades por item
 
-<!-- 
-## API Structure
-This section includes links to the detailed documentation for the different API resources:
-- [API General](./docs/general-api.md)
-- [Products API](/.doc/products-api.md)
-- [Carts API](/.doc/carts-api.md)
-- [Users API](/.doc/users-api.md)
-- [Auth API](/.doc/auth-api.md)
--->
+- **Sale**
+  - Composta por número, data, filial e cliente.
+  - Total calculado somando os `SaleItems` com descontos.
+  - Não é possível cancelar uma venda após finalizada.
+  - Apenas produtos em estoque podem ser vendidos.
 
-## Project Structure
-This section describes the overall structure and organization of the project files and directories. 
+---
 
-See [Project Structure](/.doc/project-structure.md)
+## ▶️ Iniciando a Aplicação
+
+### Pelo Docker Compose
+
+```bash
+cd template/backend
+docker-compose up -d --build
+```
+
+- **Web API**: `http://localhost:8080` / `https://localhost:8081`
+- **PostgreSQL**: `localhost:5432`
+- **MongoDB**: `localhost:27017`
+- **Redis**: `localhost:6379`
+- **RabbitMQ**: `localhost:5672` (Dashboard: `http://localhost:15672`)
+
+Use `docker-compose down` para encerrar os serviços.
+
+### Local (sem container)
+
+```bash
+cd template/backend/src/Ambev.DeveloperEvaluation.WebApi
+dotnet restore
+dotnet run
+```
+Acesse `http://localhost:5000/swagger` para explorar os endpoints.
+
+---
+
+## ✅ Testes Automatizados
+
+A suíte de testes está dividida em:
+
+- **Unitários**: Validam componentes isolados (serviços, validações, cálculos de desconto).
+- **Integração**: Conferem integração com repositórios, banco e demais serviços.
+- **Funcionais**: Cenários completos de uso (cadastro de filial, criação de venda, etc.).
+
+### Executando
+
+```bash
+# Unitários
+dotnet test --filter Category=Unit
+# Integração
+dotnet test --filter Category=Integration
+# Funcionais
+dotnet test --filter Category=Functional
+```
+
+Antes dos testes de integração, verifique se o banco está ativo e com as migrações aplicadas.
+
+---
+
+
